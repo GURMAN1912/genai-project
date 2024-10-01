@@ -108,7 +108,13 @@ export default function Sidebar({ showSidebar, isOpen, setIsOpen }) {
       <div className="flex flex-col items-start ml-2 font-serif text-left">
         <p className="text-xl font-semibold">Today:</p>
         <ul className="py-2 w-60">
-          <li className="hover:bg-[#ecce7e]  border-2 border-[#012f2c] rounded-full p-2 cursor-pointer">{chatTitle}</li>
+
+          <li className="flex justify-between bg-[#ecce7e] border-2 text-gray-800 font-semibold border-[#012f2c] rounded-full p-2 cursor-pointer">
+            <span>{chatTitle || "New Chat"}</span>
+            <button onClick={handleDeleteChat}>
+              <TbTrash className="text-red-500" size={20} />
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -119,10 +125,14 @@ export default function Sidebar({ showSidebar, isOpen, setIsOpen }) {
         </ul>
       </div>
 
-      {/* Log in button */}
-      <div className="my-4 absolute font-serif bottom-0  w-full">
-        <button onClick={handleSignOut}
-         className="bg-[#cce270] w-56 py-2 mx-4 rounded-md text-xl font-semibold active:bg-[#b1c94d] transition duration-300 ease-in-out hover:border-2 hover:border-[#85973f]">Log out</button>
+      {/* Log out button */}
+      <div className="my-4 absolute font-serif bottom-0 w-full">
+        <button
+           onClick={handleSignOut} //handleSignOut
+          className="bg-[#f36400] w-56 py-2 mx-4 rounded-full  text-xl font-semibold  hover:bg-[#fc8f41] transition duration-800 ease-in-out hover:border-0 hover:border-[#ffffff]"
+        >
+          Log out
+        </button>
       </div>
     </aside>
   );
