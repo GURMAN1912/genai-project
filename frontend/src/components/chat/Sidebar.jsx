@@ -109,7 +109,7 @@ export default function Sidebar({ showSidebar, isOpen, setIsOpen }) {
         <p className="text-xl font-semibold">Today:</p>
         <ul className="py-2 w-60">
 
-          <li className="flex justify-between bg-[#ecce7e] border-2 text-gray-800 font-semibold border-[#012f2c] rounded-full p-2 cursor-pointer">
+          <li className="flex justify-between bg-[#ecce7e] border-2 text-gray-800 font-semibold text-gray-800 font-semibold border-[#012f2c] rounded-full p-2 cursor-pointer">
             <span>{chatTitle || "New Chat"}</span>
             <button onClick={handleDeleteChat}>
               <TbTrash className="text-red-500" size={20} />
@@ -129,6 +129,7 @@ export default function Sidebar({ showSidebar, isOpen, setIsOpen }) {
       <div className="my-4 absolute font-serif bottom-0 w-full">
         <button
            onClick={handleSignOut} //handleSignOut
+
           className="bg-[#f36400] w-56 py-2 mx-4 rounded-full  text-xl font-semibold  hover:bg-[#fc8f41] transition duration-800 ease-in-out hover:border-0 hover:border-[#ffffff]"
         >
           Log out
