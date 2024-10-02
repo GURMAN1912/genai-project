@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import image from "../assets/sign-in-page.jpeg";
+import image from "../assets/sign-in-page.jpg";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import OAuth from "../components/OAuth";
@@ -66,7 +66,7 @@ const SignUpPage = () => {
       isStudent: e.target.value === "true" ? true : false,
     });
   };
-  console.log(formData);
+  // console.log(formData);
   return (
     <div className="font-serif min-h-screen  pt-32 p-6 bg-[#f4ded1] text-[#012f2c]">
       <motion.div

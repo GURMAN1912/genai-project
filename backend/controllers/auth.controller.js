@@ -2,26 +2,26 @@ import brcyptjs from "bcryptjs"
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken"
 import { errorHandler } from "../utils/error.js";
-export const SignUp=async(req,res,next)=>{
-    const {username,name,email,password}=req.body;
-    if(!username||!email||!password || username===""||email===""||password===""){
-        next(errorHandler(400,"all feilds are requied"))
-    }
-    const isUqine=await User.findOne({username,email});
-    if(isUqine){
-        next(errorHandler(400,"username or email is already taken"))
-    }
-    const hashedPassword=brcyptjs.hashSync(password,10);
-    const newUser=new User({
-        username,
-        name,
-        email,
-        gender:req.body.gender || " ",
-        age:req.body.age || 0,
-        password:hashedPassword,
-        profilePic:"",  
-        isStudent:req.body.isStudent || true
-    })
+export const SignUp = async (req, res, next) => {
+  const { username, name, email, password } = req.body;
+  if (!username || !email || !password || username === "" || email === "" || password === "") {
+    next(errorHandler(400, "all feilds are requied"))
+  }
+  const isUqine = await User.findOne({ username, email });
+  if (isUqine) {
+    next(errorHandler(400, "username or email is already taken"))
+  }
+  const hashedPassword = brcyptjs.hashSync(password, 10);
+  const newUser = new User({
+    username,
+    name,
+    email,
+    gender: req.body.gender || " ",
+    age: req.body.age || 0,
+    password: hashedPassword,
+    profilePic: "",
+    isStudent: req.body.isStudent || true
+  })
 
   try {
     await newUser.save();
@@ -59,6 +59,8 @@ export const SignIn = async (req, res, next) => {
 
     res.cookie("access_token", token, {
       httpOnly: true,
+      secure: true,
+      sameSite: "none"
     });
 
     // Send response with the user data (excluding password)
@@ -74,29 +76,32 @@ export const SignIn = async (req, res, next) => {
 
 
 export const google = async (req, res, next) => {
-    const { email, name,gender,age,profilePicture } = req.body;
-    try {
-      const user = await User.findOne({ email });
-      if (user) {
-        const token = jwt.sign(
-          { id: user._id },
-          process.env.JWT_SECRET
-        );
-        const { password, ...rest } = user._doc;
-        res.cookie('access_token', token, {
-          httpOnly: true,
-        })
-        res.status(200).json(rest);
-      } else {
-        const generatedPassword =
-          Math.random().toString(36).slice(-8) +
-          Math.random().toString(36).slice(-8);
-        const hashedPassword = brcyptjs.hashSync(generatedPassword, 10);
-        const newUser = new User({
+  const { email, name, gender, age, profilePicture } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign(
+        { id: user._id },
+        process.env.JWT_SECRET
+      );
+      const { password, ...rest } = user._doc;
+      res.cookie('access_token', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none"
+
+      })
+      res.status(200).json(rest);
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+      const hashedPassword = brcyptjs.hashSync(generatedPassword, 10);
+      const newUser = new User({
         username:
-          name.toLowerCase().split(' ').join('') +Math.random().toString(9).slice(-4),
-          name: name,
-          email,
+          name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
+        name: name,
+        email,
         email,
         profilePicture: profilePicture,
         password: hashedPassword,
@@ -112,6 +117,8 @@ export const google = async (req, res, next) => {
       const { password, ...rest } = newUser._doc;
       res.cookie('access_token', token, {
         httpOnly: true,
+        secure: true,
+        sameSite: "none"
       })
       res
         .status(200)

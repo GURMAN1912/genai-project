@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { motion } from "framer-motion";
 import "react-quill/dist/quill.snow.css";
@@ -6,15 +6,14 @@ import arrow from "../../assets/arrow.gif";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import SyncLoader from "react-spinners/SyncLoader";
+import Sidebar from "./Sidebar";
 
-const ChatSection = () => {
+const ChatSection = ({ isOpen, setIsOpen, showSidebar }) => {
   const { currentUser } = useSelector((state) => state.user);
-  const [story, setStory] = useState(""); // Holds the AI-generated response
-  const [typedResponse, setTypedResponse] = useState(""); // For typing animation
-  const [loading, setLoading] = useState(false); // Loading state for fetching the AI response
-  const [userInput, setUserInput] = useState(""); // Holds the user's input
-  const [chatHistory, setChatHistory] = useState([]); // Holds the entire conversation
-
+  // const [typedResponse, setTypedResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [userInput, setUserInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
   const customPrompt =
     "Provide empathetic advice and use emojis to show encouragement.";
   const lastMessageRef = useRef(null);
@@ -39,48 +38,32 @@ const ChatSection = () => {
     };
     fetchChatHistory();
   }, [currentUser._id]);
-
-  useEffect(() => {
-    console.log("Chat History (Updated):", chatHistory);
-  }, [chatHistory]);
-
   useEffect(() => {
     if (lastMessageRef.current && chatContainerRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [chatHistory]);
-  // // Typing animation function using setTimeout
-  // const typeResponse = (text) => {
-  //   let index = -1;
-  //   setTypedResponse(""); // Clear any previous typed text
 
-  //   // Ensure that text is not null, undefined, or empty
-  //   if (!text) return;
-
-  //   const typeCharacter = () => {
-  //     if (index < text.length - 1) {
-  //       setTypedResponse((prev) => prev + text[index]);
-  //       index++;
-
-  //       // Use setTimeout to control typing speed
-  //       setTimeout(typeCharacter, 10); // Adjust speed here (50ms per character)
-  //     }
-  //   };
-
-  //   typeCharacter(); // Start typing
-  // };
-
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async () => {
     if (!userInput.trim()) return;
     if (loading) return;
 
-    setChatHistory((prevChat) => [
-      ...prevChat,
+    // Adding user message to chat history
+    const newChatHistory = [
+      ...chatHistory,
       { sender: "user", message: userInput },
-    ]);
+    ];
+    setChatHistory(newChatHistory);
     setLoading(true);
 
     try {
+      // Build the conversation context for the AI model
+      const previousMessages = newChatHistory
+        .map((message) => `${message.sender === 'user' ? 'User' : 'Bot'}: ${message.message}`)
+        .join("\n");
+      
+      const combinedPrompt = `${previousMessages}\n${customPrompt}`;
+
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API);
       const model = genAI.getGenerativeModel({
         model: "tunedModels/mental-health-model-v343l4826azy",
@@ -94,7 +77,6 @@ const ChatSection = () => {
         responseMimeType: "text/plain",
       };
 
-      // Prepare history in the format expected by GoogleGenerativeAI
       const history = chatHistory.map((message) => ({
         role: message.sender === "user" ? "user" : "model",
         parts: [{ text: message.message }],
@@ -103,7 +85,7 @@ const ChatSection = () => {
       const chatSession = model.startChat({
         generationConfig,
         history: [
-          ...history, // Include the entire chat history
+          ...history,
           {
             role: "user",
             parts: [{ text: userInput }],
@@ -118,13 +100,11 @@ const ChatSection = () => {
         ? result.response.text()
         : "Sorry, I didn't understand that.";
 
+      // Adding AI-generated message to chat history
       setChatHistory((prevChat) => [
         ...prevChat,
         { sender: "bot", message: responseText },
       ]);
-      setStory(responseText);
-
-      // Save both user input and bot response in the database
       await axios.post("/chat/user-message", {
         message: userInput,
         userId: currentUser._id,
@@ -139,14 +119,14 @@ const ChatSection = () => {
         ...prevChat,
         {
           sender: "bot",
-          text: "Sorry, I encountered an issue. Please try again later.",
+          message: "Sorry, I encountered an issue. Please try again later.",
         },
       ]);
     } finally {
       setLoading(false);
-      setUserInput("");
+      setUserInput(""); // Clear input field
     }
-  };
+  }, [userInput, loading, chatHistory, customPrompt, currentUser._id]);
 
   const usernameVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -158,6 +138,13 @@ const ChatSection = () => {
       ref={chatContainerRef}
       className="lg:w-[50rem] md:w-[40rem] sm:w-[30rem] w-[20rem] max-w-full mx-auto p-6 bg-[#f4ded1] flex flex-col justify-between h-full pt-24"
     >
+      <Sidebar
+        showSidebar={showSidebar}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        chatHistory={chatHistory}
+        setChatHistory={setChatHistory}
+      />
       {chatHistory.length === 0 && (
         <div className="flex flex-col h-full justify-center items-center gap-2">
           <h1 className="md:text-6xl sm:text-4xl text-3xl font-semibold text-gray-800 flex  items-end">
@@ -169,7 +156,7 @@ const ChatSection = () => {
               transition={{ duration: 0.9 }}
               className="ml-2 bg-gradient-to-r from-orange-400 to-orange-700 bg-clip-text text-transparent mr-1 "
             >
-              {currentUser.username}
+              {currentUser.name}
             </motion.span>
           </h1>
           <h1 className="md:text-4xl sm:text-3xl text-2xl font-semibold text-gray-600 flex mt-3 ml-8 text-nowrap">
@@ -197,12 +184,11 @@ const ChatSection = () => {
             ref={index === chatHistory.length - 1 ? lastMessageRef : null}
             className={`mb-3 md:mb-4  md:p-5 p-3 ${
               message.sender === "user"
-                ? "bg-[#dff0e1] text-gray-800 text-right rounded-tr-2xl rounded-tl-2xl rounded-bl-2xl w-full"
-                : "bg-[#ede6ed] text-gray-800 text-left rounded-tr-2xl rounded-br-2xl rounded-tl-2xl w-full"
+                ? "bg-[#f3e5ac] text-gray-800 text-right rounded-tr-2xl rounded-tl-2xl rounded-bl-2xl w-full"
+                : "bg-[#f6e6f6] text-gray-800 text-left rounded-tr-2xl rounded-br-2xl rounded-tl-2xl w-full"
             }`}
           >
-            {/* Show the typing animation for the bot message */}
-            <p className="sm:text-lg  text-sm ">
+            <p className="sm:text-lg  text-sm">
               {message.message || "no text available"}
             </p>
           </div>
@@ -210,16 +196,17 @@ const ChatSection = () => {
 
         {loading && (
           <div className="items-center">
-            <SyncLoader color="#34495e" size={10} />
+            <SyncLoader color="#34495e" size={10} />  
           </div>
         )}
       </div>
 
-      <div className="p-4 flex justify-center items-center w-full">
+      <div className="relative p-4 w-full flex items-center">
         <input
           type="text"
-          className="bg-gray-300 p-3 rounded-xl flex-1 mr-2 outline-none focus:ring-2 focus:ring-gray-500 text-gray-800"
+          className={`bg-gray-300 p-3 pl-4 rounded-full w-full outline-none ${loading?"cursor-not-allowed":""}   text-gray-800 placeholder-gray-900 pr-12 shadow-lg`}
           value={userInput}
+          disabled={loading}
           onChange={(e) => setUserInput(e.target.value)}
           placeholder="Type your message..."
           onKeyDown={(e) => {
@@ -231,7 +218,7 @@ const ChatSection = () => {
         />
         <button
           onClick={handleSendMessage}
-          className="px-3 py-2 rounded-md text-gray-600 "
+          className={`absolute right-5 bg-orange-500 hover:bg-orange-600 text-white rounded-full p-2 ${userInput==""?"hidden":"visible"}`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -239,7 +226,7 @@ const ChatSection = () => {
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="currentColor"
-            className="nd:size-8 size-7 hover:text-gray-800 active:text-gray-900"
+            className="sm:h-6 sm:w-6 h-5 w-5 text-gray-200"
           >
             <path
               strokeLinecap="round"

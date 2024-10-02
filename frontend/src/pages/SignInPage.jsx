@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import image from "../assets/sign-in-page.jpeg";
+import image from "../assets/sign-in-page.jpg";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";

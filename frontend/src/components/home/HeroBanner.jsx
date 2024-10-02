@@ -1,5 +1,5 @@
 import React from "react";
-import image from "../../assets/herobanner.jpeg";
+import image from "../../assets/herobanner.jpg";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,7 @@ const HeroBanner = () => {
           </h1>
           <p className="my-6 font-serif text-lg md:text-xl">
             Where trust meets care. Empowering your mental well-being with
-            unwavering support.
+            Generative AI
           </p>
           <div className="flex justify-center items-center">
 

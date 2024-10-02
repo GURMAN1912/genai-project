@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import axios from "axios";
-import Navbar from "./components/home/NAVBAR";
+import Navbar from "./components/home/Navbar";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import SignInPage from "./pages/SignInPage";
@@ -16,7 +16,7 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 
 function App() {
-  axios.defaults.baseURL = "http://localhost:3000/api/";
+  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
   return (
     <BrowserRouter>
       <ScrollToTop />

@@ -182,7 +182,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {showMenu && (
-        <div className="font-serif z-[99999] block shadow-2xl pt-24 p-4  bg-[#ffffff] text-[#012f2c] text-xl fixed top-0 left-0 w-full z-1000">
+        <div className="font-serif z-[99999] block shadow-2xl mt-[70px] p-4  bg-[#ffffff] text-[#012f2c] text-xl fixed top-0 left-0 w-full z-1000">
           <div className="flex flex-col">
             <Link
               to={"/"}

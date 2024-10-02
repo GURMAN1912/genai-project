@@ -4,8 +4,8 @@ import User from "../models/user.model.js";
 const saveUserMessage = async (req, res, next) => {
     try {
         const { message, userId } = req.body;
-        console.log("User message:", message);
-        console.log("User ID:", userId);
+        // console.log("User message:", message);
+        // console.log("User ID:", userId);
         let chatSession = await Chat.findOne({ user: userId });
         if (!chatSession) {
             chatSession = new Chat({
@@ -13,7 +13,6 @@ const saveUserMessage = async (req, res, next) => {
                 messages: []
             });
         }
-
         chatSession.messages.push({ sender: "user", message });
         await chatSession.save();
 
@@ -48,15 +47,13 @@ const saveBotMessage = async (req, res, next) => {
 
 const getChatHistory = async (req, res, next) => {
     try {
-        const { userId } = req.params; // Get userId and sessionId from request parameters
+        const { userId } = req.params;
 
-        // Retrieve the chat session using both userId and sessionId
         const chatSession = await Chat.findOne({ user: userId });
         if (!chatSession) {
             return res.status(404).json({ message: "Chat session not found" });
         }
 
-        // Return the chat session with its messages
         res.json(chatSession);
     } catch (error) {
         console.error("Error fetching chat history:", error);
@@ -64,4 +61,41 @@ const getChatHistory = async (req, res, next) => {
     }
 };
 
-export { saveUserMessage, saveBotMessage, getChatHistory };
+const updateTitle = async (req, res, next) => {
+    try {
+        const { title } = req.body;
+        const { userId } = req.params;
+        const updatedChat = await Chat.findOneAndUpdate(
+            { user: userId },
+            { title },
+            { new: true }
+        );
+
+        if (!updatedChat) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+
+        // Return the updated chat object to the client
+        return res.status(200).json(updatedChat);
+    } catch (error) {
+        console.error("Error updating chat title:", error);
+        next(error); // Pass the error to error-handling middleware
+    }
+};
+
+const deleteChat = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const chat = await Chat.findOneAndDelete({ user: userId });
+
+        if (!chat) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+
+        return res.status(200).json({ message: "Chat deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting chat:", error);
+        next(error);
+    }
+};
+export { saveUserMessage, saveBotMessage, getChatHistory, updateTitle, deleteChat };

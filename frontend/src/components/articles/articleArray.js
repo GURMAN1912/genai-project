@@ -1,5 +1,5 @@
 import depression2 from '../../assets/depression2.jpg'
-import anxiety2 from '../../assets/anxiety2.png'
+import anxiety2 from '../../assets/anxiety2.jpg'
 import adhd2 from '../../assets/adhd2.jpg'
 import sleepDisorder2 from '../../assets/sleepDisorder2.jpg'
 
