@@ -27,7 +27,8 @@ Chat Interface
 ![image](https://github.com/user-attachments/assets/3cffc921-f5f3-4471-a231-61853962cfac)
 ![image](https://github.com/user-attachments/assets/4f99d197-8538-4e21-be7a-ce1d469c4d5b)
 ![image](https://github.com/user-attachments/assets/cb4db3e8-70f2-4a2d-a679-22839e0805ee)
-![image](https://github.com/user-attachments/assets/481f4eec-4d24-4d5f-910c-1f6ffd145cb4)
+![image](https://github.com/user-attachments/assets/5617b106-4857-4c33-91c6-c1f7b4af5df5)
+
 
 
 🎯 Features
